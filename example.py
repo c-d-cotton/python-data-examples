@@ -1,4 +1,7 @@
 #!/usr/bin/env python3
+"""
+Also see http://www.vincentgregoire.com/standard-errors-in-python/
+"""
 
 import numpy as np
 import os
@@ -11,6 +14,8 @@ import sys
 # __projectdir__ = Path(os.path.dirname(os.path.realpath(__file__)) + '/')
 
 def cross_section(printsummary = False):
+    # get dataset:{{{
+
     # set random number seed
     np.random.seed(1)
 
@@ -29,7 +34,9 @@ def cross_section(printsummary = False):
     y = 1 + x1 + 2 * x2 + epsilon
 
     dforiginal = pd.DataFrame({'y': y, 'x1': x1, 'x2': x2, 'x3': x3})
+    # get dataset:}}}
 
+    # regression with matrices:{{{
     # Basic Regression where I create matrices
     df = dforiginal.copy()
 
@@ -45,8 +52,9 @@ def cross_section(printsummary = False):
     model = sm.OLS(y, X, missing = 'drop').fit()
     if printsummary is True:
         print(model.summary())
+    # regression with matrices:}}}
 
-    # Regressions from Formulae
+    # basic regressions with formulae:{{{
     df = dforiginal.copy()
 
     # basic
@@ -66,7 +74,9 @@ def cross_section(printsummary = False):
 
     # apply logs
     model = smf.ols(formula = 'y ~ np.log(np.exp(x1)) + x2', data=df).fit()
+    # basic regressions with formulae:}}}
 
+    # different standard errors:{{{
     # Homoskedastic standard errors
     model = smf.ols(formula = 'y ~ x1 + x2', data=df).fit()
 
@@ -76,17 +86,45 @@ def cross_section(printsummary = False):
     # Clustered standard errors
     model = smf.ols(formula = 'y ~ x1 + x2', data=df).fit(cov_type = 'cluster', cov_kwds = {'groups': df['x3']})
 
-    # group every variable by mean
-    df2 = df.groupby(['x3']).mean()
+    # HAC standard errors with Bartlett Kernel
+    model = smf.ols(formula = 'y ~ x1 + x2', data=df).fit(cov_type = 'HAC', cov_kwds = {'maxlags': 1})
+    # different standard errors:}}}
 
-    # group y by mean
-    df2 = df.groupby(['x3'])['y'].mean()
-
-    # group by custom function
-    def f(x):
-        x['x1_demeanedbyx3'] = x['x1'] - x['x1'].mean()
-
-        return(x)
-    df2 = df.groupby(['x3']).apply(f)
 
 cross_section(printsummary = False)
+def groupby():
+    df = pd.DataFrame({'group': ['a', 'a', 'b'], 'var1': [1, 2, 3], 'var2': [2, 3, 4]})
+    # group every variable by mean
+    print('groupby basic all variables')
+    df2 = df.groupby(['group']).mean()
+    print(df2)
+
+    # group only var1 by mean
+    print('groupby basic one variable')
+    df2 = df.groupby(['group'])['var1'].mean()
+    print(df2)
+
+    # group by custom function
+    print('groupby custom same length as original group')
+    # where custom function defines same number of values as in original group
+    def f(x):
+        x['var1_demeanedbygroup'] = x['var1'] - x['var1'].mean()
+
+        return(x)
+    df2 = df.groupby(['group']).apply(f)
+    print(df2)
+
+    # group by custom function
+    print('groupby custom same length one per group')
+    # where custom function defines same number of values as in original group
+    def f(x):
+        return( np.mean(list(x['var1'])) - np.max(list(x['var1'])) )
+    df2 = df.groupby(['group']).apply(f)
+    print(df2)
+
+    # or alternatively with lambda
+    if False:
+        df2 = df.groupby(['group']).apply(lambda x: np.mean(list(x['var1'])) - np.max(list(x['var1'])))
+        print(df2)
+
+# groupby()
