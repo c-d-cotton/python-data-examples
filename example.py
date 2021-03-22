@@ -12,6 +12,7 @@ import numpy as np
 import os
 import pandas as pd
 from pathlib import Path
+import pytz
 import statsmodels.api as sm
 import statsmodels.formula.api as smf
 import sys
@@ -147,7 +148,7 @@ def datetime_ex(doall = False):
     # basics pandas timestamp:}}}
 
     # list of dates/timestamps:{{{
-    if True or doall is True:
+    if False or doall is True:
 
         # get all dates from 1983-01-01 to 1983-01-07 including 1983-01-01 and 1983-01-07
         startdate = datetime.date(1983, 1, 1)
@@ -206,7 +207,28 @@ def datetime_ex(doall = False):
 
     # list of dates/timestamps:}}}
 
-# datetime_ex(doall = False)
+    # convert timezone:{{{
+    if False or doall is True:
+        # mainly understood from:
+        # https://howchoo.com/g/ywi5m2vkodk/working-with-datetime-objects-and-timezones-in-python
+
+        # see list of all pytz timezones using pytz.all_timezones
+        # and common timezones using pytz.common_timezones
+
+        d = datetime.datetime.now()
+        la = pytz.timezone("America/Los_Angeles")
+        d_la = la.localize(d)
+        print(d_la)
+        print(d_la.tzinfo)
+
+        d_utc = d_la.astimezone(pytz.timezone("UTC"))
+        print(d_utc)
+        d_la = d_utc.astimezone(la)
+        print(d_la)
+
+    # convert timezone:}}}
+
+datetime_ex(doall = False)
 # Statsmodels:{{{1
 def cross_section(printsummary = False):
     # get dataset:{{{
