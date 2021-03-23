@@ -228,7 +228,49 @@ def datetime_ex(doall = False):
 
     # convert timezone:}}}
 
-datetime_ex(doall = False)
+# datetime_ex(doall = False)
+def reshape():
+    # i is the index in the wide version
+    # j is the name of the second index created from suffixes in the long version
+    # stubnames are the variables that are being indexed i.e. the first part of the variables that are currently given across the second index
+    df = pd.DataFrame({'gdp1': [100, 102], 'gdp2': [100, 101], 'year': [2000, 2001]})
+    df2 = pd.wide_to_long(df, 'gdp', i = 'year', j = 'country')
+    df2 = df2.reset_index()
+    print(df2)
+    # unpivot
+    df3 = pd.pivot(df2, index = 'year', columns = 'country', values = 'gdp')
+    df3.columns = ['gdp' + str(gdpcol) for gdpcol in df3.columns]
+    df3 = df3.reset_index()
+    print(df3)
+
+    # with multiple variables
+    df = pd.DataFrame({'gdp1': [100, 102], 'gdp2': [100, 101], 'unemp1': [5, 4], 'unemp2': [4, 3], 'year': [2000, 2001]})
+    df2 = pd.wide_to_long(df, ['gdp', 'unemp'], i = 'year', j = 'country')
+    df2 = df2.reset_index()
+    print(df2)
+    # unpivot
+    df3 = pd.pivot(df2, index = 'year', columns = 'country', values = ['gdp', 'unemp'])
+    # remove multi-index
+    df3.columns = [tup[0] + str(tup[1]) for tup in df3.columns]
+    df3 = df3.reset_index()
+    print(df3)
+
+    # need to specify if suffix is not a number using suffix = '\D+'
+    # adding separator
+    # adding additional index variable
+    df = pd.DataFrame({'gdp_usa': [100, 102], 'gdp_japan': [100, 101], 'unemp_usa': [5, 4], 'unemp_japan': [4, 3], 'year': [2000, 2001], 'worldgpd': [200, 203]})
+    df2 = pd.wide_to_long(df, ['gdp', 'unemp'], i = 'year', j = 'country', sep = '_', suffix = '\D+')
+    df2 = df2.reset_index()
+    print(df2)
+    # unpivot
+    df3 = pd.pivot(df2, index = 'year', columns = 'country', values = ['gdp', 'unemp'])
+    # remove multi-index
+    df3.columns = [tup[0] + '_' + tup[1] for tup in df3.columns]
+    df3 = df3.reset_index()
+    print(df3)
+
+
+# reshape()
 # Statsmodels:{{{1
 def cross_section(printsummary = False):
     # get dataset:{{{
