@@ -351,6 +351,22 @@ def cross_section(printsummary = False):
 
 # cross_section(printsummary = False)
 # Matplotlib:{{{1
+def lines_ex(doall = False):
+    xval = list(range(-3, 3))
+    y0val = [x ** 2 for x in xval]
+    y1val = [x ** 2 + 1 for x in xval]
+    y2val = [x ** 2 + 2 for x in xval]
+
+    # black dashed
+    plt.plot(xval, y0val, 'k--')
+    # thick green
+    plt.plot(xval, y1val, 'g', linewidth = 4)
+    # yellow dotted
+    plt.plot(xval, y2val, 'y:')
+    plt.show()
+    plt.clf()
+
+# lines_ex()
 def scatterplot_ex(doall = False):
     
     # get variables
@@ -364,21 +380,44 @@ def scatterplot_ex(doall = False):
     
     # basic plot
     if False or doall is True:
-        plt.plot(df['x'], df['y'], 'o')
-        plt.xlabel('x')
-        plt.ylabel('y')
+        xvar = 'x'
+        yvar = 'y'
+        plt.scatter(df[xvar], df[yvar])
+        plt.xlabel(xvar)
+        plt.ylabel(yvar)
+        # plt.savefig(LOCATION)
+        plt.show()
+        plt.clf()
+
+    # scatter with line of best fit
+    if True or doall is True:
+        xvar = 'x'
+        yvar = 'y'
+
+        plt.scatter(df[xvar], df[yvar])
+        plt.xlabel(xvar)
+        plt.ylabel(yvar)
+
+        # line of best fit
+        x = df[xvar].values
+        y = df[yvar].values
+        m, b = np.polyfit(x, y, 1)
+        plt.plot(x, m * x + b, 'k', linewidth = 4)
+
         # plt.savefig(LOCATION)
         plt.show()
         plt.clf()
 
     # plot with annotated column
-    if True or doall is True:
-        plt.plot(df['x'], df['y'], 'o')
-        plt.xlabel('x')
-        plt.ylabel('y')
+    if False or doall is True:
+        xvar = 'x'
+        yvar = 'y'
+        plt.scatter(df[xvar], df[yvar])
+        plt.xlabel(xvar)
+        plt.ylabel(yvar)
         # add annotation for each month
         for i, txt in enumerate(df['desc']):
-            plt.annotate(txt, (df['x'][i], df['y'][i]))
+            plt.annotate(txt, (df[xvar][i], df[yvar][i]))
         plt.show()
         plt.clf()
 
