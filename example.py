@@ -417,7 +417,7 @@ def scatterplot_ex(doall = False):
         plt.ylabel(yvar)
         # add annotation for each month
         for i, txt in enumerate(df['desc']):
-            plt.annotate(txt, (df[xvar][i], df[yvar][i]))
+            plt.annotate(txt, (df[xvar][i], df[yvar][i]), size = 5)
         plt.show()
         plt.clf()
 
