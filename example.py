@@ -208,7 +208,7 @@ def datetime_ex(doall = False):
     # list of dates/timestamps:}}}
 
     # convert timezone:{{{
-    if False or doall is True:
+    if True or doall is True:
         # mainly understood from:
         # https://howchoo.com/g/ywi5m2vkodk/working-with-datetime-objects-and-timezones-in-python
 
@@ -216,15 +216,18 @@ def datetime_ex(doall = False):
         # and common timezones using pytz.common_timezones
 
         d = datetime.datetime.now()
-        la = pytz.timezone("America/Los_Angeles")
+        la = pytz.timezone("America/New_York")
         d_la = la.localize(d)
         print(d_la)
         print(d_la.tzinfo)
 
-        d_utc = d_la.astimezone(pytz.timezone("UTC"))
+        d_utc = d_la.astimezone(pytz.timezone("GMT"))
         print(d_utc)
         d_la = d_utc.astimezone(la)
         print(d_la)
+
+        # one line
+        print(pytz.timezone("America/New_York").localize(datetime.datetime.now()).astimezone(pytz.timezone("GMT")))
 
     # convert timezone:}}}
 
@@ -350,6 +353,55 @@ def cross_section(printsummary = False):
     # different standard errors:}}}
 
 # cross_section(printsummary = False)
+def dummies(doall = False):
+    # get dataset:{{{
+
+    ni = 1000
+   
+    # Example of generating random number distribution
+    # loc = mean, scale = sd, size = array of distribution
+    x1 = np.random.normal(loc = 0, scale = 1, size = [ni, nt])
+    epsilon = np.random.normal(loc = 0, scale = 1, size = [ni, nt])
+
+    # basic fixed effect
+    alphai = np.random.normal(loc = 0, scale = 5, size = [ni])
+    # time trend by entity
+    gammai = np.random.normal(loc = 0, scale = 0.5, size = [ni])
+    gammai = [0] * ni
+
+    # time fixed effect
+    gammat = np.random.normal(loc = 0, scale = 5, size = [nt])
+
+    y = np.empty([ni, nt])
+    idi = np.empty([ni, nt])
+    timet = np.empty([ni, nt])
+    for i in range(len(ni)):
+        for t in range(len(nt)):
+            y[i, t] = alphai[i] + gammat[t] + gammai[i] * t + x1[i, t] + epsilon[i, t]
+            idi[i, t] = i
+            timet[i, t] = t
+    # reshape as variables
+    y = y.reshape(ni * nt)
+    idi = idi.reshape(ni * nt)
+    timet = timet.reshape(ni * nt)
+
+    dforiginal = pd.DataFrame({'y': y, 'x1': x1, 'id': idi, 'time': timet})
+    # get dataset:}}}
+
+    df = dforiginal
+
+    model0 = smf.ols(formula = 'y ~ x1').fit()
+
+    model1 = smf.ols(formula = 'y ~ x1 + C(time)').fit()
+
+    model2 = smf.ols(formula = 'y ~ x1 + C(time) + C(id)').fit()
+
+    
+
+
+
+
+
 # Matplotlib:{{{1
 def lines_ex(doall = False):
     xval = list(range(-3, 3))
