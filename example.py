@@ -259,6 +259,9 @@ def reshape():
     print(df3)
 
     # need to specify if suffix is not a number using suffix = '\D+'
+    # suffix using numbers (only) (default): suffix = '\d+'
+    # suffix using letters (only): suffix = '\D+'
+    # suffix using letters or numbers: suffix = '\S+'
     # adding separator
     # adding additional index variable
     df = pd.DataFrame({'gdp_usa': [100, 102], 'gdp_japan': [100, 101], 'unemp_usa': [5, 4], 'unemp_japan': [4, 3], 'year': [2000, 2001], 'worldgpd': [200, 203]})
