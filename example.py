@@ -421,7 +421,23 @@ def lines_ex(doall = False):
     plt.show()
     plt.clf()
 
-# lines_ex()
+
+def legendposition():
+    plt.plot([1, 2, 3, 4, 5], [2, 3, 4, 5, 6], label = 'hello')
+    plt.plot([1, 2, 3, 4, 5], [3, 4, 5, 6, 7], label = 'goodbye')
+    # ncol determines number of columns in legend
+    # adjust y in bbox_to_anchor to move up and down
+    # fontsize argument not needed
+    fontsize = 10
+    plt.xlabel('X')
+    plt.ylabel('Y')
+    plt.legend(prop = {'size': fontsize}, loc='upper center', bbox_to_anchor=(0.5, -0.15), fancybox = True, shadow = True, ncol = 2)
+    # need to adjust after bbox_to_anchor
+    plt.tight_layout()
+    plt.show()
+    plt.clf()
+
+
 def scatterplot_ex(doall = False):
     
     # get variables
