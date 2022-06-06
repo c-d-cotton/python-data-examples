@@ -355,9 +355,10 @@ def datetime_me_ex():
     df = filltime(dfnoweekend)
     print(df)
 
-    df = pd.DataFrame(index = ['20100101d', '20100201d', '20100202d'])
-    df = raisefreq(df, 'm')
-    print(df)
+    # probably don't use this
+    # df = pd.DataFrame(index = ['20100101d', '20100201d', '20100202d'])
+    # df = raisefreq(df, 'm')
+    # print(df)
 
 
 # Statsmodels:{{{1
@@ -492,7 +493,90 @@ def dummies_ex():
     print(model4.summary())
     
 
-def statstabout_me_ex():
+# Me Tables:{{{1
+def tabularconvert_me_ex():
+    """
+    Examples of my tables to convert listoflists into tabular
+    """
+
+    # basic:{{{
+    tabular = tabularconvert([['Col1', 'Col2'], ['a', 'b'], ['1', '2']], colalign = '|l|r|', hlines = [0, 1, -1], savename = None)
+    print(tabular)
+    # basic:}}}
+
+    # multicolumn:{{{
+    tabular = tabularconvert([['\\multicolumn{2}{|c|}{Cols. 1 and 2}', 'Col3'], ['Col1', 'Col2', 'Col3'], ['a', 'b', 'c'], ['1', '2', '3']], colalign = '|c|c|c|', hlines = [0, 1, 2, -1], savename = None)
+    print(tabular)
+    # multicolumn:}}}
+
+    # multirow:{{{
+    tabular = tabularconvert([['', 'Col1', 'Col2'], ['\\multirow{2}{*}{Letters}', 'a', 'b'], ['', 'A', 'B'], ['Numbers', '1', '2']], colalign = 'lcc', hlines = [0, 1, 3, -1], savename = None)
+    print(tabular)
+    # multirow:}}}
+
+    # regression example:{{{
+
+    # data setup:{{{
+    N = 1000
+    Nfirsthalf = N // 2
+    beta1 = 1
+    beta2 = 1
+
+    x1 = np.random.normal(size = N)
+    x2 = np.random.normal(size = N)
+    epsilon = np.random.normal(size = N)
+
+    df = pd.DataFrame({'x1': x1, 'x2': x2, 'epsilon': epsilon})
+    df['y1'] = beta1 * df['x1'] + beta2 * df['x2'] + df['epsilon']
+    df['y2'] = 2 * beta1 * df['x1'] + 2 * beta2 * df['x2'] + 2 * df['epsilon']
+    # data setup:}}}
+
+    outputrows = []
+    # add title row
+    outputrows.append(['x/y', 'y1', 'y2'])
+
+    # put x in rows and y in columns
+    for x in ['x1', 'x2']:
+        betarow = [x]
+        stdnrow = ['']
+        for y in ['y1', 'y2']:
+            df2 = df[(df[y].notna()) & (df[x].notna())].copy()
+
+            model = smf.ols(formula = y + ' ~ ' + x, data = df2).fit()
+
+            beta = model.params[1]
+            pval = model.pvalues[1]
+            stderr = model.bse[1]
+            # tstat = model.tvalues[1]
+            n = len(df2)
+            
+            # add stars
+            abeta = '{:.3f}'.format(beta)
+            if pval < 0.05:
+                abeta = abeta + '*'
+            if pval < 0.01:
+                abeta = abeta + '*'
+            if pval < 0.001:
+                abeta = abeta + '*'
+
+            stderr = '{:.3f}'.format(stderr)
+            n = str(n)
+
+            betarow.append(abeta)
+            stdnrow.append('(' + stderr + ',' + n + ')')
+        
+        outputrows.append(betarow)
+        outputrows.append(stdnrow)
+
+    tabular = tabularconvert(outputrows, colalign = 'lcc', hlines = [0, 1, -1], savename = None)
+    print(tabular)
+    # regression example:}}}
+
+
+def getsmresultstable_me_ex():
+    """
+    Examples of my functions to convert statsmodels into regression tables.
+    """
     # data setup:{{{
     N = 1000
     Nfirsthalf = N // 2

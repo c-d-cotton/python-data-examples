@@ -9,6 +9,8 @@ datetime_me_ex()
 #
 # cross_section_ex()
 # dummies_ex()
+# 
+tabularconvert_me_ex()
 # statstabout_me_ex()
 #
 # lines_ex()
