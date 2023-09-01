@@ -149,6 +149,29 @@ def reshape_ex():
     print(df3)
     # pivot_table multiple index:}}}
 
+    # pivot CPI example with my dates:{{{
+
+    # the main object index is name
+    # other object index is levelid
+    # the main date is month
+    # Two variables to reshape are cpi_nsa, cpi_sa
+    df = pd.DataFrame({'name': ['All items', 'All items', 'Food', 'Food', 'Energy', 'Energy', 'All items except food and energy', 'All items except food and energy'], 'month': ['202101m', '202102m', '202101m', '202102m', '202101m', '202102m', '202101m', '202102m'], 'levelid': ['00', '00', '00_00', '00_00', '00_01', '00_01', '00_02', '00_02'], 'cpi_nsa': [100, 101, 200, 202, 300, 303, 400, 404], 'cpi_sa': [100, 100, 200, 200, 300, 300, 400, 400]})
+
+    # long to wide
+    df2 = pd.pivot_table(df, index = ['name', 'levelid'], columns = 'month', values = ['cpi_sa', 'cpi_nsa'])
+    # adjust columns
+    df2.columns = [col[0] + '_' + col[1] for col in df2.columns]
+    df2 = df2.reset_index()
+
+    # wide to long
+    # w+ matches [a-zA-Z0-9_]+
+    stubnames = sorted(list(set(['_'.join(col.split('_')[: -1]) for col in datacols])))
+    df3 = pd.wide_to_long(df2, stubnames = ['cpi_sa', 'cpi_nsa'], i = ['name', 'levelid'], j = 'month', sep = "_", suffix = '\\w+')
+    df3 = df3.reset_index()
+    print(df3)
+
+    # pivot CPI example with my dates:}}}
+
 
 # Dates:{{{1
 def datetime_ex():
