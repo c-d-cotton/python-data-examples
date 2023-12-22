@@ -173,6 +173,53 @@ def reshape_ex():
     # pivot CPI example with my dates:}}}
 
 
+def groupby_weighted_mean_singlecol(df,data_col,weight_col,by_col):
+    df['_data_times_weight'] = df[data_col]*df[weight_col]
+    df['_weight_where_notnull'] = df[weight_col]*pd.notnull(df[data_col])
+    g = df.groupby(by_col)
+    result = g['_data_times_weight'].sum() / g['_weight_where_notnull'].sum()
+    del df['_data_times_weight'], df['_weight_where_notnull']
+    return result
+
+
+def groupby_weighted_mean_manycol(df, data_col, weight_col, by_col):
+    """
+    by_col can be one weight for all columns or different weights for each column
+    """
+    g = df.groupby(by_col)
+
+    if isinstance(weight_col, str):
+        # if weight_col is not a list then set it to be a list of same length as data_col
+        weight_col = [weight_col] * len(data_col)
+
+    df2list = []
+
+    for i in range(len(data_col)):
+        df['_data_times_weight'] = df[data_col[i]]*df[weight_col[i]]
+        df['_weight_where_notnull'] = df[weight_col[i]]*pd.notnull(df[data_col[i]])
+        result = g['_data_times_weight'].sum() / g['_weight_where_notnull'].sum()
+        df2 = result.to_frame()
+        df2.columns = [data_col[i]]
+        df2list.append(df2)
+
+    del df['_data_times_weight'], df['_weight_where_notnull']
+
+    dfout = pd.concat(df2list, axis = 1)
+
+    return(dfout)
+
+
+def weighted_average_ex():
+    df = pd.DataFrame({'group': ['a', 'a', 'b', 'b', 'c', 'c'], 'weight1': [0.1, 0.2, 0.1, 0.2, 0.1, 0.3], 'weight2': [0.01, 0.02, 0.01, 0.02, 0.02, 0.02], 'val1': [np.nan, np.nan, np.nan, 1, 2, 3], 'val2': [np.nan, np.nan, np.nan, 1, 2, 4]})
+    
+    df2 = groupby_weighted_mean_singlecol(df, 'val1', 'weight1', 'group')
+    print(df2)
+    df2 = groupby_weighted_mean_manycol(df, ['val1', 'val2'], 'weight1', 'group')
+    print(df2)
+    df2 = groupby_weighted_mean_manycol(df, ['val1', 'val2'], ['weight1', 'weight2'], 'group')
+    print(df2)
+
+
 # Dates:{{{1
 def datetime_ex():
 
